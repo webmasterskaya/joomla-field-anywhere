@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="package" method="upgrade">
+    <name>pkg_field_anywhere</name>
+    <packagename>field_anywhere</packagename>
+    <author>Artem Vasilev - Webmasterskaya</author>
+    <creationDate>21.02.2020</creationDate>
+    <copyright>Copyright (C) 2020 Webmasterskaya. All rights reserved.</copyright>
+    <license>GNU General Public License version 3 or later; see LICENSE.txt</license>
+    <authorEmail>dev@webmasterskaya.xyz</authorEmail>
+    <authorUrl>https://webmasterskaya.xyz</authorUrl>
+    <version>__DEPLOY_VERSION__</version>
+    <description>pkg_field_anywhere_DESCRIPTION</description>
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.pkg_field_anywhere.sys.ini</language>
+        <language tag="ru-RU">ru-RU/ru-RU.pkg_field_anywhere.sys.ini</language>
+    </languages>
+    <files>
+        <folder type="component" id="com_name">com_name</folder>
+        <folder type="module" client="site/administrator" id="mod_name">mod_name</folder>
+        <folder type="plugin" group="group" id="name">plg_group_name</folder>
+    </files>
+    <updateservers>
+        <server type="extension" priority="1" name="field_anywhere">
+            https://site.com/update?extension=pkg_field_anywhere
+        </server>
+    </updateservers>
+</extension>
