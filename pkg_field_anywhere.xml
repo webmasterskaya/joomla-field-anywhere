@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.9" type="package" method="upgrade">
-    <name>pkg_field_anywhere</name>
+    <name>PKG_FIELD_ANYWHERE</name>
     <packagename>field_anywhere</packagename>
     <author>Artem Vasilev - Webmasterskaya</author>
     <creationDate>21.02.2020</creationDate>
@@ -9,19 +9,17 @@
     <authorEmail>dev@webmasterskaya.xyz</authorEmail>
     <authorUrl>https://webmasterskaya.xyz</authorUrl>
     <version>__DEPLOY_VERSION__</version>
-    <description>pkg_field_anywhere_DESCRIPTION</description>
+    <description>PKG_FIELD_ANYWHERE_DESCRIPTION</description>
     <languages folder="language">
         <language tag="en-GB">en-GB/en-GB.pkg_field_anywhere.sys.ini</language>
         <language tag="ru-RU">ru-RU/ru-RU.pkg_field_anywhere.sys.ini</language>
     </languages>
     <files>
-        <folder type="component" id="com_name">com_name</folder>
-        <folder type="module" client="site/administrator" id="mod_name">mod_name</folder>
-        <folder type="plugin" group="group" id="name">plg_group_name</folder>
+        <folder type="plugin" group="content" id="field_anywhere">plg_content_field_anywhere</folder>
     </files>
     <updateservers>
         <server type="extension" priority="1" name="field_anywhere">
-            https://site.com/update?extension=pkg_field_anywhere
+            https://webmasterskaya.xyz/updates?extension=joomla-field-anywhere
         </server>
     </updateservers>
 </extension>

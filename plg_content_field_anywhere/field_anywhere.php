@@ -1,11 +1,11 @@
 <?php
 
+defined('_JEXEC') or die;
+
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Plugin\CMSPlugin;
-
-defined('_JEXEC') or die;
 
 class PlgContentField_anywhere extends CMSPlugin
 {
@@ -72,9 +72,12 @@ class PlgContentField_anywhere extends CMSPlugin
 		}
 
 		// Register FieldsHelper
-		JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
+		JLoader::register(
+			'FieldsHelper',
+			JPATH_ADMINISTRATOR.'/components/com_fields/helpers/fields.php'
+		);
 		// Add a directory of extended models classes
-		BaseDatabaseModel::addIncludePath(Path::clean(__DIR__ . '/models/'));
+		BaseDatabaseModel::addIncludePath(Path::clean(__DIR__.'/models/'));
 
 		// Prepare the text
 		if (isset($item->text))
@@ -85,7 +88,11 @@ class PlgContentField_anywhere extends CMSPlugin
 		// Prepare the intro text
 		if (isset($item->introtext))
 		{
-			$item->introtext = $this->prepare($item->introtext, $context, $item);
+			$item->introtext = $this->prepare(
+				$item->introtext,
+				$context,
+				$item
+			);
 		}
 	}
 
@@ -103,7 +110,12 @@ class PlgContentField_anywhere extends CMSPlugin
 	 */
 	private function prepare($content, $context, $item)
 	{
-		preg_match_all('/{(loadfield|fieldgroup)(.*?)}/i', $content, $matches, PREG_SET_ORDER);
+		preg_match_all(
+			'/{(loadfield|fieldgroup)(.*?)}/i',
+			$content,
+			$matches,
+			PREG_SET_ORDER
+		);
 
 		if ($matches)
 		{
@@ -115,19 +127,26 @@ class PlgContentField_anywhere extends CMSPlugin
 			}
 			else
 			{
-				$context = $parts[0] . '.' . $parts[1];
-				if (!$this->itemsCache->get($context . '.' . $item->id, ''))
+				$context = $parts[0].'.'.$parts[1];
+				if (!$this->itemsCache->get($context.'.'.$item->id, ''))
 				{
-					$this->itemsCache->set($context . '.' . $item->id, $item, '.');
+					$this->itemsCache->set($context.'.'.$item->id, $item, '.');
 				}
 				$fields = FieldsHelper::getFields($context, $item, true);
 				if ($fields)
 				{
 					foreach ($fields as $field)
 					{
-						if (!$this->fieldsCache->get($context . '.' . $item->id . '.' . $field->id, ''))
+						if (!$this->fieldsCache->get(
+							$context.'.'.$item->id.'.'.$field->id,
+							''
+						))
 						{
-							$this->fieldsCache->set($context . '.' . $item->id . '.' . $field->id, $field, '.');
+							$this->fieldsCache->set(
+								$context.'.'.$item->id.'.'.$field->id,
+								$field,
+								'.'
+							);
 						}
 					}
 				}
@@ -164,25 +183,30 @@ class PlgContentField_anywhere extends CMSPlugin
 					{
 						continue;
 					}
-					$destContext = $destParts[0] . '.' . $destParts[1];
+					$destContext = $destParts[0].'.'.$destParts[1];
 
 					//Получаем удалённый источник из кэша или из модели
 					if ($destContext == $context && $destItemId == $item->id)
 					{
 						$destItem    = &$item;
 						$destContext = $context;
-
 					}
 					else
 					{
-						$destItem = $this->itemsCache->get($destContext . '.' . $destItemId, false);
+						$destItem = $this->itemsCache->get(
+							$destContext.'.'.$destItemId,
+							false
+						);
 						if (!$destItem)
 						{
 							$modelComponent = ucfirst(substr($destParts[0], 4));
 							$modelType      = ucfirst($destParts[1]);
 
 							/** @var ContentModelExtendedArticle $model */
-							$model = BaseDatabaseModel::getInstance($modelType, $modelComponent . 'ModelExtended');
+							$model = BaseDatabaseModel::getInstance(
+								$modelType,
+								$modelComponent.'ModelExtended'
+							);
 							if (!$model)
 							{
 								continue;
@@ -194,7 +218,11 @@ class PlgContentField_anywhere extends CMSPlugin
 							{
 								continue;
 							}
-							$this->itemsCache->set($destContext . '.' . $destItem->id, $destItem, '.');
+							$this->itemsCache->set(
+								$destContext.'.'.$destItem->id,
+								$destItem,
+								'.'
+							);
 						}
 					}
 					$destItemId = $destItem->id;
@@ -215,18 +243,28 @@ class PlgContentField_anywhere extends CMSPlugin
 				$fieldsByGroups = [];
 
 				//Получаем поля из кэша или из модели
-				$destFields = $this->fieldsCache->get($destContext . '.' . $destItemId, false);
+				$destFields = $this->fieldsCache->get(
+					$destContext.'.'.$destItemId,
+					false
+				);
 				if (!$destFields)
 				{
-					$destFields = FieldsHelper::getFields($destContext, $destItem, true);
+					$destFields = FieldsHelper::getFields(
+						$destContext,
+						$destItem,
+						true
+					);
 					if (!$destFields)
 					{
 						continue;
 					}
 					foreach ($destFields as $field)
 					{
-						$this->fieldsCache->set($destContext . '.' . $destItemId . '.' . $field->id,
-							$field, '.');
+						$this->fieldsCache->set(
+							$destContext.'.'.$destItemId.'.'.$field->id,
+							$field,
+							'.'
+						);
 						$fieldsById[$field->id]             = $field;
 						$fieldsByGroups[$field->group_id][] = $field;
 					}
@@ -247,20 +285,28 @@ class PlgContentField_anywhere extends CMSPlugin
 					if (isset($fieldsById[$fieldId]))
 					{
 						//TODO: Сделать возможность, передавать layout в шоткоде
-						$layout = $fieldsById[$fieldId]->params->get('layout', 'render');
+						$layout = $fieldsById[$fieldId]->params->get(
+							'layout',
+							'render'
+						);
 						$output = FieldsHelper::render(
 							$context,
-							'field.' . $layout,
+							'field.'.$layout,
 							array(
 								'item'    => $destItem,
 								'context' => $destContext,
-								'field'   => $fieldsById[$fieldId]
+								'field'   => $fieldsById[$fieldId],
 							)
 						);
 					}
 				}
 
-				$content = preg_replace("|$match[0]|", addcslashes($output, '\\$'), $content, 1);
+				$content = preg_replace(
+					"|$match[0]|",
+					addcslashes($output, '\\$'),
+					$content,
+					1
+				);
 			}
 		}
 

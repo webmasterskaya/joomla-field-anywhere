@@ -17,6 +17,7 @@
     </languages>
     <files>
         <filename plugin="field_anywhere">field_anywhere.php</filename>
+        <folder>models</folder>
     </files>
     <updateservers>
         <server type="extension" priority="1" name="field_anywhere">
