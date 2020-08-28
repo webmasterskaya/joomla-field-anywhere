@@ -6,6 +6,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
 
 class PlgContentField_anywhere extends CMSPlugin
 {
@@ -178,7 +179,7 @@ class PlgContentField_anywhere extends CMSPlugin
 					$destItemId  = trim($matchParams[3]);
 					$destContext = strtolower(trim($matchParams[1]));
 					$destParts   = FieldsHelper::extract($destContext);
-					//Если контекст удалённого источника не одходит - пропускаем
+					//Если контекст удалённого источника не подходит - пропускаем
 					if (count($destParts) < 2)
 					{
 						continue;
@@ -252,7 +253,7 @@ class PlgContentField_anywhere extends CMSPlugin
 					$destFields = FieldsHelper::getFields(
 						$destContext,
 						$destItem,
-						true
+						false
 					);
 					if (!$destFields)
 					{
@@ -284,11 +285,54 @@ class PlgContentField_anywhere extends CMSPlugin
 				{
 					if (isset($fieldsById[$fieldId]))
 					{
-						//TODO: Сделать возможность, передавать layout в шоткоде
+						// Получаем layout из шоткода
+						if (array_key_exists(4, $matchParams))
+						{
+							$fieldLayout = trim($matchParams[4]);
+
+							// Совместимость с RadicalMultiField и его производными
+							if (strpos($fieldsById[$fieldId]->type, 'radical')
+								=== 0)
+							{
+								$fieldsById[$fieldId]->fieldparams->set(
+									'template',
+									$fieldLayout
+								);
+							}
+							else
+							{
+								$fieldsById[$fieldId]->params->set(
+									'layout',
+									$fieldLayout
+								);
+							}
+
+							PluginHelper::importPlugin('fields');
+							$dispatcher = JEventDispatcher::getInstance();
+
+							// Event allow plugins to modify the output of the field before it is prepared
+							$dispatcher->trigger('onCustomFieldsBeforePrepareField', array($destContext, $destItem, &$fieldsById[$fieldId]));
+
+							// Gathering the value for the field
+							$fieldValue = $dispatcher->trigger('onCustomFieldsPrepareField', array($destContext, $destItem, &$fieldsById[$fieldId]));
+
+							if (is_array($fieldValue))
+							{
+								$fieldValue = implode(' ', $fieldValue);
+							}
+
+							// Event allow plugins to modify the output of the prepared field
+							$dispatcher->trigger('onCustomFieldsAfterPrepareField', array($destContext, $destItem, $fieldsById[$fieldId], &$fieldValue));
+
+							// Assign the value
+							$fieldsById[$fieldId]->value = $fieldValue;
+						}
+
 						$layout = $fieldsById[$fieldId]->params->get(
 							'layout',
 							'render'
 						);
+
 						$output = FieldsHelper::render(
 							$context,
 							'field.'.$layout,
